@@ -1,0 +1,21 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Matching/MainMenu.js">
+    <Files>
+      <File FileName="Assets/Scripts/PenguinMover.js" Line="28" Column="8" />
+      <File FileName="Assets/Scripts/PenguinMotor.js" Line="50" Column="58" />
+      <File FileName="Assets/Scripts/PlayerCamera.js" Line="100" Column="47" />
+      <File FileName="Assets/Scripts/Helper.js" Line="5" Column="17" />
+      <File FileName="Assets/Standard Assets/PlayerPrefsX.js" Line="19" Column="14" />
+      <File FileName="Assets/Scripts/Matching/MainMenu.js" Line="164" Column="75" />
+      <File FileName="Assets/Scripts/Matching/MatchMngr.js" Line="258" Column="48" />
+      <File FileName="Assets/Scripts/Matching/MixCamGUI.js" Line="40" Column="49" />
+      <File FileName="Assets/Scripts/Matching/MenuMusic.js" Line="16" Column="58" />
+      <File FileName="Assets/Scripts/Matching/Clicking.js" Line="101" Column="2" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

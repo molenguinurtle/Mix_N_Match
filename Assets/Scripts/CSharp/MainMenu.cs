@@ -1,25 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class MainMenu : MonoBehaviour {
+public class MainMenu : MonoBehaviour
+{
     public bool started, gameStarted, show, customizing, viewScores, quickGame;
     float t = 00;
-    public Texture2D marioPic;
-    public Texture2D sonicPic;
-    public Texture2D sfPic;
-    public Texture2D pokPic;
-    public Texture2D mrIcon;
-    public Texture2D sfIcon;
-    public Texture2D snIcon;
-    public Texture2D pkIcon;
-    private int a = 0;
-    private int b = 0;
-    private int c = 0;
-    private int d = 0;
-    private int e = 0;
-    private int f = 0;
+    public Texture2D marioPic, sonicPic, sfPic, pokPic, mrIcon, sfIcon, snIcon, pkIcon;
+    private int suiteIterator, rangeIterator, levelIterator, timerIterator, camPosIterator, scoreIterator;
     private int[] highScores30;
     private int[] highScores45;
     private int[] highScores60;
@@ -43,21 +30,16 @@ public class MainMenu : MonoBehaviour {
     public string[] scores;
     public  GameObject[] titleBoxes;
     public Material[] titleTxtrs;
-    public string currentSuite;
-    public string currentRange;
-    public string currentLevel;
-    public string currentTimer;
-    public string currentPosition;
-    public string currentScore;
+    public string currentSuite, currentRange, currentLevel, currentTimer, currentPosition, currentScore;
 
     void Start ()
     {
         DontDestroyOnLoad(this);
-        currentSuite = suites[a];
-        currentRange = range[b];
-        currentLevel = levels[c];
-        currentTimer = timers[d];
-        currentPosition = camPositions[e];
+        currentSuite = suites[suiteIterator];
+        currentRange = range[rangeIterator];
+        currentLevel = levels[levelIterator];
+        currentTimer = timers[timerIterator];
+        currentPosition = camPositions[camPosIterator];
 
 
         highScores30 = PlayerPrefsX.GetIntArray("HighScores30", 1200, 5);
@@ -179,7 +161,7 @@ public class MainMenu : MonoBehaviour {
         {
             int z;
             int i;
-            currentScore = scores[f];
+            currentScore = scores[scoreIterator];
 
             GUI.Label(new Rect(Screen.width / 2 - 60, Screen.height / 20, 120, 100), "HIGH SCORES", myText);
 
@@ -241,18 +223,18 @@ public class MainMenu : MonoBehaviour {
 
             if (GUI.Button(new Rect(Screen.width / 10, Screen.height / 2, 20, 20), "<", myButton))
             {
-                f -= 1;
-                if (f < 0)
+                scoreIterator -= 1;
+                if (scoreIterator < 0)
                 {
-                    f = scores.Length - 1;
+                    scoreIterator = scores.Length - 1;
                 }
             }
             if (GUI.Button(new Rect(Screen.width - Screen.width / 10, Screen.height / 2, 20, 20), ">", myButton))
             {
-                f += 1;
-                if (f > scores.Length - 1)
+                scoreIterator += 1;
+                if (scoreIterator > scores.Length - 1)
                 {
-                    f = 0;
+                    scoreIterator = 0;
                 }
             }
             if (currentScore == "30 Seconds")
@@ -544,12 +526,12 @@ public class MainMenu : MonoBehaviour {
             }
             if (GUI.Button(new Rect(Screen.width / 3 - 10, Screen.height / 15 * 2, 20, 20), "<", myButton))
             {
-                a -= 1;
-                if (a < 0)
+                suiteIterator -= 1;
+                if (suiteIterator < 0)
                 {
-                    a = suites.Length - 1;
+                    suiteIterator = suites.Length - 1;
                 }
-                currentSuite = suites[a];
+                currentSuite = suites[suiteIterator];
                 if (currentSuite == "Mario")
                 {
                     myLogo.normal.background = marioPic;
@@ -570,12 +552,12 @@ public class MainMenu : MonoBehaviour {
             }
             if (GUI.Button(new Rect(Screen.width / 3 + 160, Screen.height / 15 * 2, 20, 20), ">", myButton))
             {
-                a += 1;
-                if (a > suites.Length - 1)
+                suiteIterator += 1;
+                if (suiteIterator > suites.Length - 1)
                 {
-                    a = 0;
+                    suiteIterator = 0;
                 }
-                currentSuite = suites[a];
+                currentSuite = suites[suiteIterator];
                 if (currentSuite == "Mario")
                 {
                     myLogo.normal.background = marioPic;
@@ -600,21 +582,21 @@ public class MainMenu : MonoBehaviour {
             GUI.Label(new Rect(Screen.width / 3 + 40, Screen.height / 15 * 4.5f, 120, 100), currentRange, myText);
             if (GUI.Button(new Rect(Screen.width / 3, Screen.height / 15 * 4.5f, 20, 20), "<", myButton))
             {
-                b -= 1;
-                if (b < 0)
+                rangeIterator -= 1;
+                if (rangeIterator < 0)
                 {
-                    b = range.Length - 1;
+                    rangeIterator = range.Length - 1;
                 }
-                currentRange = range[b];
+                currentRange = range[rangeIterator];
             }
             if (GUI.Button(new Rect(Screen.width / 3 + 160, Screen.height / 15 * 4.5f, 20, 20), ">", myButton))
             {
-                b += 1;
-                if (b > range.Length - 1)
+                rangeIterator += 1;
+                if (rangeIterator > range.Length - 1)
                 {
-                    b = 0;
+                    rangeIterator = 0;
                 }
-                currentRange = range[b];
+                currentRange = range[rangeIterator];
             }
 
             // Customizing the level
@@ -622,12 +604,12 @@ public class MainMenu : MonoBehaviour {
             GUI.Label(new Rect(Screen.width / 3 + 80, Screen.height / 15 * 6.5f, 120, 100), currentLevel, myLevel);
             if (GUI.Button(new Rect(Screen.width / 3 + 55, Screen.height / 15 * 6.5f, 20, 20), "<", myButton))
             {
-                c -= 1;
-                if (c < 0)
+                levelIterator -= 1;
+                if (levelIterator < 0)
                 {
-                    c = levels.Length - 1;
+                    levelIterator = levels.Length - 1;
                 }
-                currentLevel = levels[c];
+                currentLevel = levels[levelIterator];
                 if (currentLevel == "Red")
                 {
                     myLevel.normal.textColor = Color.red;
@@ -667,12 +649,12 @@ public class MainMenu : MonoBehaviour {
             }
             if (GUI.Button(new Rect(Screen.width / 3 + 160, Screen.height / 15 * 6.5f, 20, 20), ">", myButton))
             {
-                c += 1;
-                if (c > levels.Length - 1)
+                levelIterator += 1;
+                if (levelIterator > levels.Length - 1)
                 {
-                    c = 0;
+                    levelIterator = 0;
                 }
-                currentLevel = levels[c];
+                currentLevel = levels[levelIterator];
                 if (currentLevel == "Red")
                 {
                     myLevel.normal.textColor = Color.red;
@@ -716,21 +698,21 @@ public class MainMenu : MonoBehaviour {
             GUI.Label(new Rect(Screen.width / 3 + 25, Screen.height / 15 * 8.5f, 120, 100), currentTimer, myText);
             if (GUI.Button(new Rect(Screen.width / 3, Screen.height / 15 * 8.5f, 20, 20), "<", myButton))
             {
-                d -= 1;
-                if (d < 0)
+                timerIterator -= 1;
+                if (timerIterator < 0)
                 {
-                    d = timers.Length - 1;
+                    timerIterator = timers.Length - 1;
                 }
-                currentTimer = timers[d];
+                currentTimer = timers[timerIterator];
             }
             if (GUI.Button(new Rect(Screen.width / 3 + 120, Screen.height / 15 * 8.5f, 20, 20), ">", myButton))
             {
-                d += 1;
-                if (d > timers.Length - 1)
+                timerIterator += 1;
+                if (timerIterator > timers.Length - 1)
                 {
-                    d = 0;
+                    timerIterator = 0;
                 }
-                currentTimer = timers[d];
+                currentTimer = timers[timerIterator];
             }
 
             // Customizing the Mix Camera position
@@ -738,21 +720,21 @@ public class MainMenu : MonoBehaviour {
             GUI.Label(new Rect(Screen.width / 3 + 150, Screen.height / 15 * 10.5f, 120, 100), currentPosition, myText);
             if (GUI.Button(new Rect(Screen.width / 3 + 120, Screen.height / 15 * 10.5f, 20, 20), "<", myButton))
             {
-                e -= 1;
-                if (e < 0)
+                camPosIterator -= 1;
+                if (camPosIterator < 0)
                 {
-                    e = camPositions.Length - 1;
+                    camPosIterator = camPositions.Length - 1;
                 }
-                currentPosition = camPositions[e];
+                currentPosition = camPositions[camPosIterator];
             }
             if (GUI.Button(new Rect(Screen.width / 3 + 280, Screen.height / 15 * 10.5f, 20, 20), ">", myButton))
             {
-                e += 1;
-                if (e > camPositions.Length - 1)
+                camPosIterator += 1;
+                if (camPosIterator > camPositions.Length - 1)
                 {
-                    e = 0;
+                    camPosIterator = 0;
                 }
-                currentPosition = camPositions[e];
+                currentPosition = camPositions[camPosIterator];
             }
 
             if (GUI.Button(new Rect(Screen.width / 2 - 40, Screen.height - Screen.height / 20 * 2, 180, Screen.height / 20 * 1.5f), "Start Game", myButton))

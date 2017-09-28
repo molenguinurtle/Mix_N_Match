@@ -1,41 +1,34 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class MixCamGUI : MonoBehaviour {
+public class MixCamGUI : MonoBehaviour
+{
     public Texture2D[] icons;
     public string daSuite;
     public string camPos;
     public GUIStyle border;
-    void Start ()
-    {
-		
-	}
-	
-	void Update ()
-    {
-		
-	}
+
     void OnGUI()
     {
         int z;
         Texture2D daCon = new Texture2D(0,0);
-        if (daSuite == "Mario")
+        switch(daSuite)
         {
-            daCon = icons[0];
+            case "Mario":
+                daCon = icons[0];
+                break;
+            case "Sonic":
+                daCon = icons[1];
+                break;
+            case "Pokemon":
+                daCon = icons[2];
+                break;
+            case "Street Fighter":
+                daCon = icons[3];
+                break;
+            default:
+                break;
         }
-        else if (daSuite == "Sonic")
-        {
-            daCon = icons[1];
-        }
-        else if (daSuite == "Pokemon")
-        {
-            daCon = icons[2];
-        }
-        else if (daSuite == "Street Fighter")
-        {
-            daCon = icons[3];
-        }
+
         if (camPos == "Bottom Right")
         {
             //***Bottom Right***

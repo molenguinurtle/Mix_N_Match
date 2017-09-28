@@ -42,20 +42,194 @@ public class MatchMngr : MonoBehaviour {
 	private string daLevel;
     private string daSuite;
     private bool needStart = true;
-    private bool playedOne = false;
-    private bool playedTwo = false;
-    private bool playedThree = false;
-    private bool playedGo = false;
-    private bool needNewHigh = false;
-    private bool needName = false;
+    private bool playedOne, playedTwo, playedThree, playedGo, needNewHigh, needName;
     private MainMenu lesOptions;
     private string newName = "AAA";
-    // Use this for initialization
+
     void Start ()
     {
         lesOptions = GameObject.FindGameObjectWithTag("Options").GetComponent<MainMenu>();
         highScores = new int[5];
         playCam = Camera.main;
+        SetUp();
+
+        targetList = new int[9];
+        playerList = new int[9];
+
+        startTimer = timer;
+        SetTargetPic();
+    }
+
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (needStart && !wePlaying) //We will count down from 3 to start the game
+        {
+            count -= Time.deltaTime;
+            if (Mathf.RoundToInt(count) == 3 && !playedThree)
+            {
+                GetComponent<AudioSource>().PlayOneShot(countClips[0], 1.0f);
+                playedThree = true;
+            }
+            else if (Mathf.RoundToInt(count) == 2 && !playedTwo)
+            {
+                GetComponent<AudioSource>().PlayOneShot(countClips[1], 1.0f);
+                playedTwo = true;
+            }
+            else if (Mathf.RoundToInt(count) == 1 && !playedOne)
+            {
+                GetComponent<AudioSource>().PlayOneShot(countClips[2], 1.0f);
+                playedOne = true;
+            }
+            else if (Mathf.RoundToInt(count) == 0 && !playedGo)
+            {
+                GetComponent<AudioSource>().PlayOneShot(countClips[3], 1.0f);
+                playedGo = true;
+            }
+            else if (count <= 00)
+            {
+                GetComponent<AudioSource>().Play();
+                wePlaying = true;
+                needStart = false;
+            }
+        }
+        if (wePlaying && needTimer) //Now that the game has started, start the timer
+        {
+            timer -= Time.deltaTime;
+        }
+        if (playerList.SequenceEqual(targetList) && wePlaying) //If the player pic matches the target pic...
+        {
+            //...then we scored
+            score += 100 * range;
+            GetComponent<AudioSource>().PlayOneShot(scoreTune, .7f);
+            if (needTimer)
+            {
+                if (range == 2)
+                {
+                    timer += 1.0f;
+                }
+                else if (range == 3)
+                {
+                    timer += 2.0f;
+                }
+                else if (range == 4)
+                {
+                    timer += 3.0f;
+                }
+            }
+            //Now set up the next target pic
+            SetTargetPic();
+        }
+        if (timer <= 00 && wePlaying) //If we run out of time
+        {
+            GetComponent<AudioSource>().Stop();
+            wePlaying = false;
+            gameOver = true;
+            foreach (var targ in targetCubes)
+            {
+                targ.GetComponent<Renderer>().enabled = false;
+            }
+            foreach (var play in playerCubes)
+            {
+                play.GetComponent<Renderer>().enabled = false;
+            }
+            foreach (var high in highScores)
+            {
+                if (score > high)
+                {
+                    needNewHigh = true;
+                    needName = true;
+                }
+            }
+        }
+        if (needNewHigh && !needName)
+        {
+            int i;
+
+            for (i = 0; i < 5; i++)
+            {
+                daHighNames.Add(highScores[i] + i + 1, highNames[i]);
+            }
+            if (daSuite == "Street Fighter")
+            {
+                daHighNames.Add(score, newName + " SF " + range.ToString());
+            }
+            else if (daSuite == "Mario")
+            {
+                daHighNames.Add(score, newName + " MR " + range.ToString());
+            }
+            else if (daSuite == "Sonic")
+            {
+                daHighNames.Add(score, newName + " SN " + range.ToString());
+            }
+            else if (daSuite == "Pokemon")
+            {
+                daHighNames.Add(score, newName + " PK " + range.ToString());
+            }
+            foreach (var num in daHighNames.Keys)
+            {
+                daHighs.Add(num);
+            }
+            daHighs.Sort();
+            daHighs.Reverse();
+            for (i = 0; i < 5; i++)
+            {
+                daNames.Add(daHighNames[daHighs[i]]);
+            }
+            daHighs.RemoveAt(highScores.Length);
+            for (i = 0; i < 5; i++)
+            {
+                daHighs[i] = daHighs[i] - daHighs[i] % 10;
+                if (daHighs[i] == 0)
+                {
+                    daHighs[i] += 100;
+                }
+            }
+            highScores = daHighs.ToArray();
+            highNames = daNames.ToArray();
+            if (startTimer == 99.00f)
+            {
+                PlayerPrefsX.SetIntArray("HighScores99", highScores);
+                PlayerPrefsX.SetStringArray("HighNames99", highNames);
+            }
+            else if (startTimer == 60.00f)
+            {
+                PlayerPrefsX.SetIntArray("HighScores60", highScores);
+                PlayerPrefsX.SetStringArray("HighNames60", highNames);
+            }
+            else if (startTimer == 45.00f)
+            {
+                PlayerPrefsX.SetIntArray("HighScores45", highScores);
+                PlayerPrefsX.SetStringArray("HighNames45", highNames);
+            }
+            else if (startTimer == 30.00f)
+            {
+                PlayerPrefsX.SetIntArray("HighScores30", highScores);
+                PlayerPrefsX.SetStringArray("HighNames30", highNames);
+            }
+            needNewHigh = false;
+        }
+        if (needReset)
+        {
+            ResetGame();
+        }
+
+
+    }
+
+    private void SetTargetPic()
+    {
+        for (int i =0; i < targetList.Length; i++)
+        {
+            targetList[i] = Random.Range(0, range);
+            targetCubes[i].GetComponent<Renderer>().material = textures[targetList[i]];
+        }
+    }
+
+    #region Set Up Methods
+    private void SetUp()
+    {
         if (lesOptions.quickGame)
         {
             //setting the range based off saved/default options
@@ -200,7 +374,7 @@ public class MatchMngr : MonoBehaviour {
                 Pokemon_Suite_SetUp();
             }
         }
-        else if (!lesOptions.quickGame)
+        else
         {
             //setting the 'range' var based on customize game options
             if (lesOptions.currentRange == "2")
@@ -386,266 +560,37 @@ public class MatchMngr : MonoBehaviour {
                 daSuite = "Pokemon";
                 Pokemon_Suite_SetUp();
             }
-            
+
         }
-        
+
         //Setting up audio based on suite
-        //C'est la vie. Need to come back and move all this stuff into helper methods for set up. And USE SWITCH statements
-        if (daSuite == "Mario")
+        switch (daSuite)
         {
-            GetComponent<AudioSource>().clip = marMusic[Random.Range(0, marMusic.Length)];
-            scoreTune = scoreSnds[0];
-        }
-        else if (daSuite == "Sonic")
-        {
-            GetComponent<AudioSource>().clip = hedMusic[Random.Range(0, hedMusic.Length)];
-            scoreTune = scoreSnds[1];
-        }
-        else if (daSuite == "Street Fighter")
-        {
-            GetComponent<AudioSource>().clip = sfMusic[Random.Range(0, sfMusic.Length)];
-            scoreTune = scoreSnds[2];
-        }
-        else if (daSuite == "Pokemon")
-        {
-            GetComponent<AudioSource>().clip = pokMusic[Random.Range(0, pokMusic.Length)];
-            scoreTune = scoreSnds[3];
+            case "Mario":
+                GetComponent<AudioSource>().clip = marMusic[Random.Range(0, marMusic.Length)];
+                scoreTune = scoreSnds[0];
+                break;
+            case "Sonic":
+                GetComponent<AudioSource>().clip = hedMusic[Random.Range(0, hedMusic.Length)];
+                scoreTune = scoreSnds[1];
+                break;
+            case "Street Fighter":
+                GetComponent<AudioSource>().clip = sfMusic[Random.Range(0, sfMusic.Length)];
+                scoreTune = scoreSnds[2];
+                break;
+            case "Pokemon":
+                GetComponent<AudioSource>().clip = pokMusic[Random.Range(0, pokMusic.Length)];
+                scoreTune = scoreSnds[3];
+                break;
+            default:
+                break;
         }
 
         //Setting up mix camera border based on suite
         matchCam.GetComponent<MixCamGUI>().daSuite = daSuite;
-        if (lesOptions.quickGame)
-        {
-            matchCam.GetComponent<MixCamGUI>().camPos = PlayerPrefs.GetString("QuickPos", "Bottom Right");
-        }
-        else if (lesOptions.quickGame == false)
-        {
-            matchCam.GetComponent<MixCamGUI>().camPos = lesOptions.currentPosition;
-        }
-        targetList = new int[9];
-        playerList = new int[9];
-
-        startTimer = timer;
-        SetTargetPic();
+        matchCam.GetComponent<MixCamGUI>().camPos = lesOptions.quickGame ? PlayerPrefs.GetString("QuickPos", "Bottom Right") : matchCam.GetComponent<MixCamGUI>().camPos = lesOptions.currentPosition;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (needStart && !wePlaying) //We will count down from 3 to start the game
-        {
-            count -= Time.deltaTime;
-            if (Mathf.RoundToInt(count) == 3 && !playedThree)
-            {
-                GetComponent<AudioSource>().PlayOneShot(countClips[0], 1.0f);
-                playedThree = true;
-            }
-            else if (Mathf.RoundToInt(count) == 2 && !playedTwo)
-            {
-                GetComponent<AudioSource>().PlayOneShot(countClips[1], 1.0f);
-                playedTwo = true;
-            }
-            else if (Mathf.RoundToInt(count) == 1 && !playedOne)
-            {
-                GetComponent<AudioSource>().PlayOneShot(countClips[2], 1.0f);
-                playedOne = true;
-            }
-            else if (Mathf.RoundToInt(count) == 0 && !playedGo)
-            {
-                GetComponent<AudioSource>().PlayOneShot(countClips[3], 1.0f);
-                playedGo = true;
-            }
-            else if (count <= 00)
-            {
-                GetComponent<AudioSource>().Play();
-                wePlaying = true;
-                needStart = false;
-            }
-        }
-        if (wePlaying && needTimer) //Now that the game has started, start the timer
-        {
-            timer -= Time.deltaTime;
-        }
-        if (playerList.SequenceEqual(targetList) && wePlaying) //If the player pic matches the target pic...
-        {
-            score += 100 * range;
-            GetComponent<AudioSource>().PlayOneShot(scoreTune, .7f);
-            if (needTimer)
-            {
-                if (range == 2)
-                {
-                    timer += 1.0f;
-                }
-                else if (range == 3)
-                {
-                    timer += 2.0f;
-                }
-                else if (range == 4)
-                {
-                    timer += 3.0f;
-                }
-            }
-            SetTargetPic();
-        }
-        if (timer <= 00 && wePlaying) //If we run out of time
-        {
-            GetComponent<AudioSource>().Stop();
-            wePlaying = false;
-            gameOver = true;
-            foreach (var targ in targetCubes)
-            {
-                targ.GetComponent<Renderer>().enabled = false;
-            }
-            foreach (var play in playerCubes)
-            {
-                play.GetComponent<Renderer>().enabled = false;
-            }
-            foreach (var high in highScores)
-            {
-                if (score > high)
-                {
-                    needNewHigh = true;
-                    needName = true;
-                }
-            }
-        }
-        if (needNewHigh && !needName)
-        {
-            int i;
-
-            for (i = 0; i < 5; i++)
-            {
-                daHighNames.Add(highScores[i] + i + 1, highNames[i]);
-            }
-            if (daSuite == "Street Fighter")
-            {
-                daHighNames.Add(score, newName + " SF " + range.ToString());
-            }
-            else if (daSuite == "Mario")
-            {
-                daHighNames.Add(score, newName + " MR " + range.ToString());
-            }
-            else if (daSuite == "Sonic")
-            {
-                daHighNames.Add(score, newName + " SN " + range.ToString());
-            }
-            else if (daSuite == "Pokemon")
-            {
-                daHighNames.Add(score, newName + " PK " + range.ToString());
-            }
-            foreach (var num in daHighNames.Keys)
-            {
-                daHighs.Add(num);
-            }
-            daHighs.Sort();
-            daHighs.Reverse();
-            for (i = 0; i < 5; i++)
-            {
-                daNames.Add(daHighNames[daHighs[i]]);
-            }
-            daHighs.RemoveAt(highScores.Length);
-            for (i = 0; i < 5; i++)
-            {
-                daHighs[i] = daHighs[i] - daHighs[i] % 10;
-                if (daHighs[i] == 0)
-                {
-                    daHighs[i] += 100;
-                }
-            }
-            highScores = daHighs.ToArray();
-            highNames = daNames.ToArray();
-            if (startTimer == 99.00f)
-            {
-                PlayerPrefsX.SetIntArray("HighScores99", highScores);
-                PlayerPrefsX.SetStringArray("HighNames99", highNames);
-            }
-            else if (startTimer == 60.00f)
-            {
-                PlayerPrefsX.SetIntArray("HighScores60", highScores);
-                PlayerPrefsX.SetStringArray("HighNames60", highNames);
-            }
-            else if (startTimer == 45.00f)
-            {
-                PlayerPrefsX.SetIntArray("HighScores45", highScores);
-                PlayerPrefsX.SetStringArray("HighNames45", highNames);
-            }
-            else if (startTimer == 30.00f)
-            {
-                PlayerPrefsX.SetIntArray("HighScores30", highScores);
-                PlayerPrefsX.SetStringArray("HighNames30", highNames);
-            }
-            needNewHigh = false;
-        }
-        if (needReset)
-        {
-            timer = startTimer;
-            score = 0;
-            count = 4.0f;
-
-            SetTargetPic();
-
-            foreach (var play in playerCubes)
-            {
-                play.GetComponent<Renderer>().material = textures[0];
-            }
-            for (int i =0;i<playerList.Length;i++)
-            {
-                playerList[i] = 0;
-            }
-            foreach (var targ in targetCubes)
-            {
-                targ.GetComponent<Renderer>().enabled = true;
-            }
-            foreach (var play in playerCubes)
-            {
-                play.GetComponent<Renderer>().enabled = true;
-            }
-            daHighs.Clear();
-            daNames.Clear();
-            daHighNames.Clear();
-            playedOne = false;
-            playedTwo = false;
-            playedThree = false;
-            playedGo = false;
-            gameOver = false;
-            needStart = true;
-            needReset = false;
-        }
-
-    
-    }
-    private void SetTargetPic()
-    {
-        targetList[0] = Random.Range(0, range);
-        targetCubes[0].GetComponent<Renderer>().material = textures[targetList[0]];
-
-        targetList[1] = Random.Range(0, range);
-        targetCubes[1].GetComponent<Renderer>().material = textures[targetList[1]];
-
-        targetList[2] = Random.Range(0, range);
-        targetCubes[2].GetComponent<Renderer>().material = textures[targetList[2]];
-
-        targetList[3] = Random.Range(0, range);
-        targetCubes[3].GetComponent<Renderer>().material = textures[targetList[3]];
-
-        targetList[4] = Random.Range(0, range);
-        targetCubes[4].GetComponent<Renderer>().material = textures[targetList[4]];
-
-        targetList[5] = Random.Range(0, range);
-        targetCubes[5].GetComponent<Renderer>().material = textures[targetList[5]];
-
-        targetList[6] = Random.Range(0, range);
-        targetCubes[6].GetComponent<Renderer>().material = textures[targetList[6]];
-
-        targetList[7] = Random.Range(0, range);
-        targetCubes[7].GetComponent<Renderer>().material = textures[targetList[7]];
-
-        targetList[8] = Random.Range(0, range);
-        targetCubes[8].GetComponent<Renderer>().material = textures[targetList[8]];
-
-    }
-
-    #region Suite Set Up Methods
     private void Pokemon_Suite_SetUp()
     {
         textures = flwrTextures;
@@ -717,6 +662,43 @@ public class MatchMngr : MonoBehaviour {
             play.GetComponent<Renderer>().material = textures[0];
         }
     }
+
+    private void ResetGame()
+    {
+        timer = startTimer;
+        score = 0;
+        count = 4.0f;
+
+        SetTargetPic();
+
+        foreach (var play in playerCubes)
+        {
+            play.GetComponent<Renderer>().material = textures[0];
+        }
+        for (int i = 0; i < playerList.Length; i++)
+        {
+            playerList[i] = 0;
+        }
+        foreach (var targ in targetCubes)
+        {
+            targ.GetComponent<Renderer>().enabled = true;
+        }
+        foreach (var play in playerCubes)
+        {
+            play.GetComponent<Renderer>().enabled = true;
+        }
+        daHighs.Clear();
+        daNames.Clear();
+        daHighNames.Clear();
+        playedOne = false;
+        playedTwo = false;
+        playedThree = false;
+        playedGo = false;
+        gameOver = false;
+        needStart = true;
+        needReset = false;
+    }
+
     #endregion
 
     void OnGUI()

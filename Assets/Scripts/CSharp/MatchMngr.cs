@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -466,7 +466,7 @@ public class MatchMngr : MonoBehaviour {
         {
             timer -= Time.deltaTime;
         }
-        if (targetList == playerList && wePlaying) //If the player pic matches the target pic...
+        if (playerList.SequenceEqual(targetList) && wePlaying) //If the player pic matches the target pic...
         {
             score += 100 * range;
             GetComponent<AudioSource>().PlayOneShot(scoreTune, .7f);
